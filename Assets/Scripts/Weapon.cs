@@ -59,8 +59,9 @@ public class Weapon : MonoBehaviour
     }
     public void Fire()
     {
-        if (CanFire && !IsMagazineEmpty() && IsReloading)
+        if (CanFire && !IsMagazineEmpty() && IsReloading != true)
         {
+            ShotSound.Play();
             Debug.Log(CurrentMagazineBulletCount);
             CurrentMagazineBulletCount--;
             RaycastHit HitInfo = new RaycastHit();

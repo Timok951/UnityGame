@@ -16,9 +16,9 @@ public class Playercontroller : MonoBehaviour
 
     public float DistationToGround = 0.1f;
 
-    public GameObject[] WeaponInventory;
+    public List<GameObject> WeaponInventory = new List<GameObject>();
 
-    public GameObject[] WeaponMeshes;
+    public List<GameObject> WeaponMeshes = new List<GameObject>();
 
     public int SelectedWeaponId = 0;
 
@@ -42,12 +42,16 @@ public class Playercontroller : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        _Weapon = WeaponInventory[SelectedWeaponId].GetComponent<Weapon>();
 
-        WeaponMeshes[SelectedWeaponId].SetActive(true);
 
-        
+        if (WeaponInventory.Count > 0)
+        {
+            _Weapon = WeaponInventory[SelectedWeaponId].GetComponent<Weapon>();
+            WeaponMeshes[SelectedWeaponId].SetActive(true);
+        }
     }
+
+
 
     // Update is called once per frame
     private void Jump()
@@ -73,7 +77,7 @@ public class Playercontroller : MonoBehaviour
     {
         GroundCheck();
 
-        if (Input.GetKey(KeyCode.Space) && IsGrounded ) Jump();
+        if (Input.GetKey(KeyCode.Space) && IsGrounded) Jump();
 
         if (Input.GetKey(KeyCode.Mouse0)) _Weapon.Fire();
 
@@ -87,7 +91,7 @@ public class Playercontroller : MonoBehaviour
 
         SetRotation();
 
-         if (Input.GetKey(KeyCode.LeftShift) && !_GameManager.IsStaminaRestoring)
+        if (Input.GetKey(KeyCode.LeftShift) && !_GameManager.IsStaminaRestoring)
         {
             _GameManager.SpendStamina();
             _Rigidbody.MovePosition(CalculateSprint());
@@ -125,7 +129,7 @@ public class Playercontroller : MonoBehaviour
             WeaponMeshes[SelectedWeaponId].SetActive(false);
             SelectedWeaponId -= 1;
 
-            WeaponInventory[SelectedWeaponId].GetComponent<Weapon>();
+            _Weapon = WeaponInventory[SelectedWeaponId].GetComponent<Weapon>();
 
             WeaponMeshes[SelectedWeaponId].SetActive(true);
 
@@ -135,12 +139,12 @@ public class Playercontroller : MonoBehaviour
 
     private void SelectNextWeapon()
     {
-        if (WeaponInventory.Length > SelectedWeaponId + 1)
+        if (WeaponInventory.Count > SelectedWeaponId + 1)
         {
             WeaponMeshes[SelectedWeaponId].SetActive(false);
             SelectedWeaponId += 1;
 
-            WeaponInventory[SelectedWeaponId].GetComponent<Weapon>();
+            _Weapon = WeaponInventory[SelectedWeaponId].GetComponent<Weapon>();  // Обновляем _Weapon
 
             WeaponMeshes[SelectedWeaponId].SetActive(true);
 
@@ -157,5 +161,27 @@ public class Playercontroller : MonoBehaviour
         UnityEngine.Vector3 Move = transform.right * HorizontalDirection + transform.forward * VerticalDirection;
         return _Rigidbody.transform.position + Move * Time.fixedDeltaTime * SprintSpeed;
 
+    }
+
+    public void PickupWeapon(GameObject newWeapon, GameObject weaponModel)
+    {
+        WeaponInventory.Add(newWeapon);
+        WeaponMeshes.Add(weaponModel);
+
+        BoxCollider boxCollider = newWeapon.GetComponent<BoxCollider>();
+        if (boxCollider != null)
+        {
+            boxCollider.enabled = false;
+        }
+
+        weaponModel.transform.SetParent(HandMeshes.transform);
+
+        weaponModel.transform.localPosition = new UnityEngine.Vector3(0, 0.24f, 0.3f);
+        weaponModel.transform.localRotation = UnityEngine.Quaternion.identity;
+
+        weaponModel.SetActive(false);
+        SelectNextWeapon();
+
+        Debug.Log("Pick the gun: " + newWeapon.GetComponent<Weapon>().WeaponType);
     }
 }

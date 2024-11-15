@@ -4,11 +4,11 @@ using UnityEngine;
 
 public enum WeaponsEnum
 {
-    Pistol = 0,
+    Pistol = 2,
 
     Rifle = 1,
-    SniperRifle = 2,
-    Shotgun = 3
+    SniperRifle = 0,
+    Shotgun = 0,
 
 }
 
